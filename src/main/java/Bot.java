@@ -1,3 +1,4 @@
+package main.java;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -56,32 +57,40 @@ public class Bot {
     }
 
 
-    public static void sendResponse(Object message)throws IOException, ParseException {
+    public static void sendResponse(Object message){
         System.out.println("Respondong to message :"+message);
 
-        OkHttpClient client=new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://api.telegram.org/bot1141854084:AAGAJfcep4cSTIMm5gZsQA8RBJR_PY3po3w/sendMessage"+
-                        "?chat_id="+getChatId(message)+
-                        "&text="+getResponseMessage(((JSONObject)message).get("text").toString()).replaceAll(" ","%20"))
-                .post(null)
-                .build();
-        Response response=client.newCall(request).execute();
-        System.out.println(response.body().string());
+        try {
+            OkHttpClient client=new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url("https://api.telegram.org/bot1141854084:AAGAJfcep4cSTIMm5gZsQA8RBJR_PY3po3w/sendMessage"+
+                            "?chat_id="+getChatId(message)+
+                            "&text="+getResponseMessage(((JSONObject)message).get("text").toString()).replaceAll(" ","%20"))
+                    .post(null)
+                    .build();
+            Response response=client.newCall(request).execute();
+            System.out.println(response.body().string());
+        }catch (Exception e){
+
+        }
     }
 
     public static String getChatId(Object message){
         return ((JSONObject)((JSONObject)message).get("chat")).get("id").toString();
     }
 
-    public static String getResponseMessage(String message)throws org.json.simple.parser.ParseException,IOException {
-        String responseMessage="";
-        System.out.println("generating response to :"+message);
-        if (message.equals("/start"))
-            responseMessage="Type the country ";
-        else
-            responseMessage=CovidStats.getStatsFor(message);
-        return responseMessage;
+    public static String getResponseMessage(String message) {
+        try {
+            String responseMessage="";
+            System.out.println("generating response to :"+message);
+            if (message.equals("/start"))
+                responseMessage="Type the country ";
+            else
+                responseMessage= CovidStats.getStatsFor(message);
+            return responseMessage;
+        }catch (Exception e){
+            return null;
+        }
     }
     public static long setOffset(JSONArray jsonArray){
         return Long.parseLong(((JSONObject)jsonArray.get(0)).get("update_id").toString()) + jsonArray.size();
